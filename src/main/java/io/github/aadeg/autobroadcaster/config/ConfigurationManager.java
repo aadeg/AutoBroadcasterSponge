@@ -76,16 +76,16 @@ public class ConfigurationManager {
         	.setComment("This is the name that will be display in the chat.");
         
         defaultBroadcaster.getNode("interval").setValue(60)
-        	.setComment("Inteverval in seconds between two announcement.");
+        	.setComment("Interval in seconds between two announcement.");
         
         defaultBroadcaster.getNode("worlds").setValue(new Vector<String>())
-        	.setComment("List of worlds where will be broadcast the messages. Leave it blank to broacast to all the worlds.");
+        	.setComment("List of worlds where will be broadcast the messages. Leave it blank to broadcast to all the worlds.");
         
         defaultBroadcaster.getNode("broadcastToConsole").setValue(false)
         	.setComment("Set it to true if you what to broadcast messages in console.");
         
         Vector<String> msgs = new Vector<String>();
-        msgs.add("Test Message");
+        msgs.add("&6Test Message");
         defaultBroadcaster.getNode("messages").setValue(msgs)
         	.setComment("Messages to broadcast.");
 
