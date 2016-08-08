@@ -7,7 +7,7 @@ You can download this plugin [here](https://ore-staging.spongepowered.org/aadeg/
 + Supports text color
 + Supports clickable link in messages
 + Supports user-friendly specification of intervals (ex: 1h2m10s)
-+ Customizable prefix to all the messages sent
++ Customizable prefix to all the messages senta
 + Customizable interval between messages
 + Worlds limitation: you can broadcast a message in all the worlds or only in some
 + Broadcaster can be temporarily disabled 
@@ -79,16 +79,17 @@ autobroadcaster {
 ```/autobroadcaster <broadcaster> remove <messageID>```: Remove a new message to the specified broadcaster. The ID of a message can be found using ```/autobroadcaster <broadcaster> list``` command.
 ```/autobroadcaster reload```: Reload the configuration file. This command allowed to change the configuration file and reload it without restart the server.
 
+
 ## Permissions
-```autobroadcaster.list```: Permission for command ```/autobroadcaster list```.
-```autobroadcaster.reload```: Permission for command ```/autobroadcaster reload```.
+**autobroadcaster.list**: Permission for command ```/autobroadcaster list```.
+**autobroadcaster.reload**: Permission for command ```/autobroadcaster reload```.
 
 For the next permissions you need to replace ```<broadcaster>``` placeholder with the name of desired brodacaster. 
-```autobroadcaster.broadcaster.<broadcaster>.list```: Permission for command ```/autobroadcaster <broadcaster> list```.
-```autobroadcaster.broadcaster.<broadcaster>.enable```: Permission for command ```/autobroadcaster <broadcaster> enable```.
-```autobroadcaster.broadcaster.<broadcaster>.disable```: Permission for command ```/autobroadcaster <broadcaster> disable```.
-```autobroadcaster.broadcaster.<broadcaster>.add```: Permission for command ```/autobroadcaster <broadcaster> add <message>```.
-```autobroadcaster.broadcaster.<broadcaster>.remove```: Permission for command ```/autobroadcaster <broadcaster> remove <messageID>```.
+**autobroadcaster.broadcaster.\<broadcaster\>.list**: Permission for command ```/autobroadcaster <broadcaster> list```.
+**autobroadcaster.broadcaster.\<broadcaster\>.enable**: Permission for command ```/autobroadcaster <broadcaster> enable```.
+**autobroadcaster.broadcaster.\<broadcaster\>.disable**: Permission for command ```/autobroadcaster <broadcaster> disable```.
+**autobroadcaster.broadcaster.\<broadcaster\>.add**: Permission for command ```/autobroadcaster <broadcaster> add <message>```.
+**autobroadcaster.broadcaster.\<broadcaster\>.remove**: Permission for command ```/autobroadcaster <broadcaster> remove <messageID>```.
 
 
 ## Known Issues

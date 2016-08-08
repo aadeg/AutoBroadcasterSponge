@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-@Plugin(id = "autobroadcaster", name = "AutoBroadcaster", version = "0.1.0")
+@Plugin(id = "autobroadcaster", name = "AutoBroadcaster", version = "0.2.0")
 public class AutoBroadcaster {
 
     private static AutoBroadcaster instance;
