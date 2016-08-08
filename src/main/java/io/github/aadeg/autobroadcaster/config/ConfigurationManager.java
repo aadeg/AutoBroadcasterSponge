@@ -1,8 +1,8 @@
 package io.github.aadeg.autobroadcaster.config;
 
 import io.github.aadeg.autobroadcaster.AutoBroadcaster;
-import io.github.aadeg.autobroadcaster.config.updaters.ConfigurationUpdater;
-import io.github.aadeg.autobroadcaster.config.updaters.Version2Updater;
+import io.github.aadeg.autobroadcaster.config.upgraders.ConfigurationUpgrader;
+import io.github.aadeg.autobroadcaster.config.upgraders.Version2Upgrader;
 import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
 public class ConfigurationManager {
     public static final int CONFIG_VERSION = 2;
 
-    private static final List<ConfigurationUpdater> UPDATERS = new ArrayList<>();
+    private static final List<ConfigurationUpgrader> UPGRADERS = new ArrayList<>();
     static {
-        UPDATERS.add(new Version2Updater());
+        UPGRADERS.add(new Version2Upgrader());
     }
 
     private static ConfigurationManager instance = new ConfigurationManager();
@@ -117,10 +117,10 @@ public class ConfigurationManager {
     private void updateConfig(){
         boolean changed = false;
 
-        for (ConfigurationUpdater updater : UPDATERS) {
-            if (!updater.isAlreadyUpdated(config)) {
+        for (ConfigurationUpgrader updater : UPGRADERS) {
+            if (!updater.isAlreadyUpgrader(config)) {
                 AutoBroadcaster.getLogger().info("Updating configuration file to version " + updater.getVersion() + ".");
-                updater.update(config);
+                updater.upgrade(config);
                 changed = true;
             } else {
                 break;

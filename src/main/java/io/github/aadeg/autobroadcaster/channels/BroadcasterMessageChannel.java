@@ -1,6 +1,5 @@
 package io.github.aadeg.autobroadcaster.channels;
 
-import org.spongepowered.api.scoreboard.objective.Objective;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.channel.MutableMessageChannel;

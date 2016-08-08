@@ -1,6 +1,5 @@
 package io.github.aadeg.autobroadcaster;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import io.github.aadeg.autobroadcaster.channels.AllPlayerMessageChannel;
 import io.github.aadeg.autobroadcaster.channels.WorldMessageChannel;

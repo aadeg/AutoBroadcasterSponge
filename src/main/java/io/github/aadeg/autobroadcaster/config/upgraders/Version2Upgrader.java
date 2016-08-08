@@ -1,11 +1,11 @@
-package io.github.aadeg.autobroadcaster.config.updaters;
+package io.github.aadeg.autobroadcaster.config.upgraders;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-public class Version2Updater implements ConfigurationUpdater {
+public class Version2Upgrader implements ConfigurationUpgrader {
 
     @Override
-    public void update(CommentedConfigurationNode config) {
+    public void upgrade(CommentedConfigurationNode config) {
         CommentedConfigurationNode node = config.getNode("autobroadcaster");
         node.getNode("version").setValue(2);
         for (CommentedConfigurationNode broadcasterNode : node.getNode("broadcasters").getChildrenMap().values()) {
@@ -19,7 +19,7 @@ public class Version2Updater implements ConfigurationUpdater {
     }
 
     @Override
-    public boolean isAlreadyUpdated(CommentedConfigurationNode config) {
+    public boolean isAlreadyUpgrader(CommentedConfigurationNode config) {
         CommentedConfigurationNode node = config.getNode("autobroadcaster");
         if (!node.getChildrenMap().containsKey("version"))
             return false;
