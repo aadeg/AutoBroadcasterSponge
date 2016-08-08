@@ -3,6 +3,7 @@ package io.github.aadeg.autobroadcaster;
 import com.google.inject.Inject;
 import io.github.aadeg.autobroadcaster.commands.ReloadCommand;
 import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
+import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
@@ -91,11 +92,9 @@ public class AutoBroadcaster {
                 continue;
             }
 
-            logger.info(Integer.toString(interval));
-
             Broadcaster broadcaster = new Broadcaster(
                     (String) key,
-                    ConfigurationManager.deserializeText(node.getNode("announcerName").getString()),
+                    TextUtils.deserializeText(node.getNode("announcerName").getString()),
                     interval,
                     node.getNode("broadcastToConsole").getBoolean(),
                     node.getNode("worlds").getList(ConfigurationManager.STRING_LIST_TRANSFORMER),

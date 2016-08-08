@@ -1,11 +1,10 @@
 package io.github.aadeg.autobroadcaster.config;
 
-import io.github.aadeg.autobroadcaster.AutoBroadcaster;
+import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,44 +63,36 @@ public class ConfigurationManager {
         }
     }
 
-    private void initDefaultConfig(){
+    private void initDefaultConfig() {
         CommentedConfigurationNode broadcaster = config.getNode("autobroadcaster", "broadcasters")
-        		.setComment("Here you can define all the broadcaster that you need.");
-        
+                .setComment("Here you can define all the broadcaster that you need.");
+
         CommentedConfigurationNode defaultBroadcaster = broadcaster.getNode("default")
-        		.setComment("This is a default broadcaster. You can rename it and modified as you want.");
-        
+                .setComment("This is a default broadcaster. You can rename it and modified as you want.");
+
         Text announcerName = Text.builder("[").color(TextColors.RED)
-        		.append(Text.of(TextColors.GOLD, "AutoBroadcaster"),
-        				Text.of(TextColors.RED, "]")).build();
-        
-        defaultBroadcaster.getNode("announcerName").setValue(serializeText(announcerName))
-        	.setComment("This is the name that will be display in the chat.");
-        
+                .append(Text.of(TextColors.GOLD, "AutoBroadcaster"),
+                        Text.of(TextColors.RED, "]")).build();
+
+        defaultBroadcaster.getNode("announcerName").setValue(TextUtils.serializeText(announcerName))
+                .setComment("This is the name that will be display in the chat.");
+
         defaultBroadcaster.getNode("interval").setValue("60s")
-        	.setComment("Interval between two announcement. Example: 10h30m5s -> 10 hours, 30 minutes and 5 seconds");
-        
+                .setComment("Interval between two announcement. Example: 10h30m5s -> 10 hours, 30 minutes and 5 seconds");
+
         defaultBroadcaster.getNode("worlds").setValue(new Vector<String>())
-        	.setComment("List of worlds where will be broadcast the messages. Leave it blank to broadcast to all the worlds.");
-        
+                .setComment("List of worlds where will be broadcast the messages. Leave it blank to broadcast to all the worlds.");
+
         defaultBroadcaster.getNode("broadcastToConsole").setValue(false)
-        	.setComment("Set it to true if you what to broadcast messages in console.");
-        
+                .setComment("Set it to true if you what to broadcast messages in console.");
+
         Vector<String> msgs = new Vector<String>();
         msgs.add("&6Test Message");
         defaultBroadcaster.getNode("messages").setValue(msgs)
-        	.setComment("Messages to broadcast.");
+                .setComment("Messages to broadcast.");
 
         saveConfig();
 
-    }
-    
-    public static String serializeText(Text text){
-    	return TextSerializers.FORMATTING_CODE.serialize(text);
-    }
-    
-    public static Text deserializeText(String str){
-    	return TextSerializers.FORMATTING_CODE.deserialize(str);
     }
 
     /**
@@ -141,7 +132,7 @@ public class ConfigurationManager {
     public static final Function TEXT_LIST_TRANSFORMER = new Function<Object, Text>() {
         @Override
         public Text apply(Object o) {
-            return deserializeText((String) o);
+            return TextUtils.deserializeText((String) o, true);
         }
     };
 
