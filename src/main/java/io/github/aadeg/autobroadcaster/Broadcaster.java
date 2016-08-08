@@ -1,9 +1,11 @@
 package io.github.aadeg.autobroadcaster;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import io.github.aadeg.autobroadcaster.channels.AllPlayerMessageChannel;
 import io.github.aadeg.autobroadcaster.channels.WorldMessageChannel;
 import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
+import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Scheduler;
@@ -22,11 +24,11 @@ public class Broadcaster {
     private int interval;
     private boolean broadcastToConsole;
     private Set<World> worlds = new HashSet<World>();
-    private List<Text> messages = new LinkedList<Text>();
+    private LinkedList<Text> messages = new LinkedList<Text>();
 
     private Task task = null;
     private MutableMessageChannel channel;
-    private Iterator<Text> msgIterator;
+    private Iterator<Text> msgIterator = null;
 
     public Broadcaster(String name, Text announcerName, boolean enabled, int interval, boolean broadcastToConsole, List<String> worlds, List<Text> messages){
         AutoBroadcaster.getLogger().debug("Initialization of broadcaster " + name + "...");
@@ -35,8 +37,7 @@ public class Broadcaster {
         this.enabled = enabled;
         this.interval = interval;
         this.broadcastToConsole = broadcastToConsole;
-        this.messages = messages;
-        this.msgIterator = this.messages.iterator();
+        this.messages.addAll(messages);
 
         for (String w : worlds){
             Optional<World> opt = Sponge.getGame().getServer().getWorld(w);
@@ -71,6 +72,8 @@ public class Broadcaster {
             return;
 
         AutoBroadcaster.getLogger().debug("Starting broadcaster " + name + "...");
+        this.msgIterator = this.messages.iterator();
+
         Sponge.getEventManager().registerListeners(AutoBroadcaster.getInstance(), this.channel);
 
         Scheduler scheduler = Sponge.getScheduler();
@@ -112,6 +115,48 @@ public class Broadcaster {
         ConfigurationManager.getInstance().saveConfig();
         this.enabled = false;
         return true;
+    }
+
+    public void addMessage(Text msg){
+        stop();
+
+        CommentedConfigurationNode msgsNode = ConfigurationManager.getInstance().getConfig()
+                .getNode("autobroadcaster", "broadcasters", this.name, "messages");
+
+        List<String> msgs = new ArrayList<>(msgsNode.getList(ConfigurationManager.STRING_LIST_TRANSFORMER));
+        msgs.add(TextUtils.serializeText(msg));
+
+        msgsNode.setValue(msgs);
+        ConfigurationManager.getInstance().saveConfig();
+
+        this.messages.addLast(msg);
+
+        start();
+    }
+
+    public boolean removeMessage(int index){
+        if (index < 0 || index >= messages.size())
+            return false;
+
+        stop();
+
+        CommentedConfigurationNode msgsNode = ConfigurationManager.getInstance().getConfig()
+                .getNode("autobroadcaster", "broadcasters", this.name, "messages");
+
+        List<String> msgs = new ArrayList<>(msgsNode.getList(ConfigurationManager.STRING_LIST_TRANSFORMER));
+        msgs.remove(index);
+
+        msgsNode.setValue(msgs);
+        ConfigurationManager.getInstance().saveConfig();
+
+        this.messages.remove(index);
+        start();
+
+        return true;
+    }
+
+    public ImmutableList<Text> getMessages(){
+        return ImmutableList.copyOf(messages);
     }
 
     @Override

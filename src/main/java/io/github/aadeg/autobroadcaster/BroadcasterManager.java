@@ -1,6 +1,7 @@
 package io.github.aadeg.autobroadcaster;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
 import io.github.aadeg.autobroadcaster.utils.TextUtils;
@@ -63,6 +64,23 @@ public class BroadcasterManager {
         return false;
     }
 
+    public void addBroadcasters(){
+        removeBroadcasters();
+        Map<Object, ? extends CommentedConfigurationNode> map = ConfigurationManager.getInstance().getBroadcastersConfig();
+
+        AutoBroadcaster.getLogger().debug("Found " + map.size() + " broadcasters.");
+
+        for (Object key : map.keySet()){
+            addBroadcaster((String) key, map.get(key));
+        }
+    }
+
+    public void removeBroadcasters(){
+        for (String name : broadcasters.keySet())
+            broadcasters.get(name).stop();
+        broadcasters.clear();
+    }
+
     public boolean enableBroadcaster(String name){
         Broadcaster b = broadcasters.get(name);
 
@@ -83,21 +101,22 @@ public class BroadcasterManager {
         return false;
     }
 
-    public void addBroadcasters(){
-        removeBroadcasters();
-        Map<Object, ? extends CommentedConfigurationNode> map = ConfigurationManager.getInstance().getBroadcastersConfig();
+    public boolean addMessage(String name, Text message){
+        Broadcaster b = broadcasters.get(name);
+        if (b == null)
+            return false;
 
-        AutoBroadcaster.getLogger().debug("Found " + map.size() + " broadcasters.");
-
-        for (Object key : map.keySet()){
-            addBroadcaster((String) key, map.get(key));
-        }
+        b.addMessage(message);
+        return true;
     }
 
-    public void removeBroadcasters(){
-        for (String name : broadcasters.keySet())
-            broadcasters.get(name).stop();
-        broadcasters.clear();
+    public boolean removeMessage(String name, int msgID){
+        Broadcaster b = broadcasters.get(name);
+        if (b == null)
+            return false;
+
+        b.removeMessage(msgID);
+        return true;
     }
 
     public Set<Text> getBroadcastersToString(){
@@ -111,6 +130,18 @@ public class BroadcasterManager {
 
         return out;
     }
+
+    public ImmutableSet<String> getBroadcasterNames(){
+        return ImmutableSet.copyOf(broadcasters.keySet());
+    }
+
+    public ImmutableList<Text> getBroadcasterMessages(String name){
+        Broadcaster b = broadcasters.get(name);
+        if (b == null)
+            return null;
+        return b.getMessages();
+    }
+
 
     public boolean hasBroadcaster(String name){
         return broadcasters.containsKey(name);

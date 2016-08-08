@@ -22,11 +22,6 @@ public class ToggleBroadcasterCommand implements CommandExecutor {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         String broadcasterName = args.<String>getOne("broadcaster").get();
 
-        if (!BroadcasterManager.getInstance().hasBroadcaster(broadcasterName)){
-            AutoBroadcaster.sendMessageWithPrefix(src, Text.of("Invalid broadcaster name!"));
-            return CommandResult.empty();
-        }
-
         if (enable)
             return enable(src, broadcasterName);
         else

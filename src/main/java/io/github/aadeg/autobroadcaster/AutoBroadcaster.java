@@ -1,9 +1,7 @@
 package io.github.aadeg.autobroadcaster;
 
 import com.google.inject.Inject;
-import io.github.aadeg.autobroadcaster.commands.ListBroadcastersCommand;
-import io.github.aadeg.autobroadcaster.commands.ReloadCommand;
-import io.github.aadeg.autobroadcaster.commands.ToggleBroadcasterCommand;
+import io.github.aadeg.autobroadcaster.commands.*;
 import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -22,6 +20,10 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Plugin(id = "autobroadcaster", name = "AutoBroadcaster", version = "0.1.0")
@@ -77,7 +79,7 @@ public class AutoBroadcaster {
                 .permission("autobroadcaster.admin.enable")
                 .executor(new ToggleBroadcasterCommand(true))
                 .arguments(
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of("broadcaster")))
+                        GenericArguments.onlyOne(new BroadcasterCommandElement(Text.of("broadcaster")))
                 )
                 .build();
 
@@ -86,9 +88,14 @@ public class AutoBroadcaster {
                 .permission("autobroadcaster.admin.disable")
                 .executor(new ToggleBroadcasterCommand(false))
                 .arguments(
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of("broadcaster")))
+                        GenericArguments.onlyOne(new BroadcasterCommandElement(Text.of("broadcaster")))
                 )
                 .build();
+
+        Map<String, String> subCommands = new HashMap<>();
+        subCommands.put("list", "list");
+        subCommands.put("add", "add");
+        subCommands.put("remove", "remove");
 
         CommandSpec cmd = CommandSpec.builder()
                 .description(Text.of("Manage AutoBroadcaster plugin"))
@@ -96,6 +103,12 @@ public class AutoBroadcaster {
                 .child(listBroadcasters, "list", "ls")
                 .child(enableBroadcaster, "enable")
                 .child(disableBroadcaster, "disable")
+                .executor(new BroadcasterCommand())
+                .arguments(
+                        GenericArguments.onlyOne(new BroadcasterCommandElement(Text.of("broadcaster"))),
+                        GenericArguments.onlyOne(GenericArguments.choices(Text.of("command"), subCommands)),
+                        GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of("params")))
+                )
                 .build();
 
         Sponge.getCommandManager().register(this, cmd, "autobroadcaster", "ab");
