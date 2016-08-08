@@ -1,15 +1,18 @@
 package io.github.aadeg.autobroadcaster;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
 import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.*;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class BroadcasterManager {
     private static BroadcasterManager instance = new BroadcasterManager();
