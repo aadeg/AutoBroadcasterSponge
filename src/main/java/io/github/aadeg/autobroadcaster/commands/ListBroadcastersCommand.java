@@ -9,23 +9,23 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.text.Text;
 
-import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
-import org.spongepowered.api.text.TextElement;
+import java.util.Set;
 
-import java.util.HashMap;
-import java.util.Map;
+public class ListBroadcastersCommand implements CommandExecutor {
 
-public class ReloadCommand implements CommandExecutor {
-
+    @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        AutoBroadcaster.getLogger().debug("Reloading configuration...");
+        Set<Text> broadcasters = BroadcasterManager.getInstance().getBroadcastersToString();
+        if (broadcasters.isEmpty()) {
+            AutoBroadcaster.sendMessageWithPrefix(src, Text.of("No broadcasters defined"));
+            return CommandResult.success();
+        }
 
-        ConfigurationManager.getInstance().loadConfig();
-        BroadcasterManager.getInstance().addBroadcasters();
+        AutoBroadcaster.sendMessageWithPrefix(src, Text.of("List of the active broadcasters:"));
 
-        src.sendMessage(AutoBroadcaster.messagePrefix.concat(Text.of("Configuration reloaded.")));
+        for (Text t : broadcasters)
+            AutoBroadcaster.sendMessageWithPrefix(src, Text.builder("- ").append(t).build());
 
-        AutoBroadcaster.getLogger().debug("configuration reloaded.");
         return CommandResult.success();
     }
 }

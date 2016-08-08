@@ -1,13 +1,16 @@
 package io.github.aadeg.autobroadcaster;
 
 import com.google.inject.Inject;
+import io.github.aadeg.autobroadcaster.commands.ListBroadcastersCommand;
 import io.github.aadeg.autobroadcaster.commands.ReloadCommand;
+import io.github.aadeg.autobroadcaster.commands.ToggleBroadcasterCommand;
 import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
-import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
@@ -16,17 +19,19 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 
 @Plugin(id = "autobroadcaster", name = "AutoBroadcaster", version = "0.1.0")
 public class AutoBroadcaster {
 
     private static AutoBroadcaster instance;
+
+    public final static Text messagePrefix = Text.of(
+            TextColors.RED, "[", TextColors.GOLD, "AutoBroadcaster", TextColors.RED, "] "
+    );
 
     @Inject
     private Logger logger;
@@ -37,8 +42,6 @@ public class AutoBroadcaster {
     @Inject
     @DefaultConfig(sharedRoot = true)
     private ConfigurationLoader<CommentedConfigurationNode> configManager;
-
-    private List<Broadcaster> broadcasters = new ArrayList<Broadcaster>();
 
     @Listener
     public void onPreInitialization(GamePreInitializationEvent event){
@@ -53,58 +56,49 @@ public class AutoBroadcaster {
 
     @Listener
     public void onServerStarted(GameStartedServerEvent event){
-        startBroadcasters();
+        BroadcasterManager.getInstance().addBroadcasters();
     }
 
     private void registerCommands() {
         CommandSpec reload = CommandSpec.builder()
                 .description(Text.of("Reload the configuration files"))
-                .permission("autobroadcaster.reload")
+                .permission("autobroadcaster.admin.reload")
                 .executor(new ReloadCommand())
+                .build();
+
+        CommandSpec listBroadcasters = CommandSpec.builder()
+                .description(Text.of("List all the broadcasters"))
+                .permission("autobroadcaster.admin.list")
+                .executor(new ListBroadcastersCommand())
+                .build();
+
+        CommandSpec enableBroadcaster = CommandSpec.builder()
+                .description(Text.of("Enable a broadcaster"))
+                .permission("autobroadcaster.admin.enable")
+                .executor(new ToggleBroadcasterCommand(true))
+                .arguments(
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("broadcaster")))
+                )
+                .build();
+
+        CommandSpec disableBroadcaster = CommandSpec.builder()
+                .description(Text.of("Disable a broadcaster"))
+                .permission("autobroadcaster.admin.disable")
+                .executor(new ToggleBroadcasterCommand(false))
+                .arguments(
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("broadcaster")))
+                )
                 .build();
 
         CommandSpec cmd = CommandSpec.builder()
                 .description(Text.of("Manage AutoBroadcaster plugin"))
                 .child(reload, "reload", "r")
+                .child(listBroadcasters, "list", "ls")
+                .child(enableBroadcaster, "enable")
+                .child(disableBroadcaster, "disable")
                 .build();
 
         Sponge.getCommandManager().register(this, cmd, "autobroadcaster", "ab");
-    }
-
-    public void startBroadcasters(){
-        if (!broadcasters.isEmpty()){
-            broadcasters.forEach((b) -> b.stop());
-            broadcasters.clear();
-        }
-
-        Map<Object, ? extends CommentedConfigurationNode> map = ConfigurationManager.getInstance().getBroadcastersConfig();
-
-        logger.debug("Found " + map.size() + " broadcasters.");
-
-        for(Object key : map.keySet()){
-            CommentedConfigurationNode node = map.get(key);
-
-            int interval;
-            try {
-                interval = ConfigurationManager.parseInterval(node.getNode("interval").getString());
-            } catch (IllegalArgumentException ex){
-                logger.warn("Invalid interval in " + key + " broadcaster! Broadcaster ignored.");
-                continue;
-            }
-
-            Broadcaster broadcaster = new Broadcaster(
-                    (String) key,
-                    TextUtils.deserializeText(node.getNode("announcerName").getString()),
-                    interval,
-                    node.getNode("broadcastToConsole").getBoolean(),
-                    node.getNode("worlds").getList(ConfigurationManager.STRING_LIST_TRANSFORMER),
-                    node.getNode("messages").getList(ConfigurationManager.TEXT_LIST_TRANSFORMER)
-            );
-
-            broadcasters.add(broadcaster);
-            broadcaster.start();
-        }
-
     }
 
     public static Logger getLogger(){
@@ -113,5 +107,9 @@ public class AutoBroadcaster {
 
     public static AutoBroadcaster getInstance(){
         return instance;
+    }
+
+    public static void sendMessageWithPrefix(CommandSource src, Text msg) {
+        src.sendMessage(AutoBroadcaster.messagePrefix.concat(Text.of(msg)));
     }
 }

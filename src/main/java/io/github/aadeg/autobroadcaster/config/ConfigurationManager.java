@@ -1,5 +1,8 @@
 package io.github.aadeg.autobroadcaster.config;
 
+import io.github.aadeg.autobroadcaster.AutoBroadcaster;
+import io.github.aadeg.autobroadcaster.config.updaters.ConfigurationUpdater;
+import io.github.aadeg.autobroadcaster.config.updaters.Version2Updater;
 import io.github.aadeg.autobroadcaster.utils.TextUtils;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -8,6 +11,8 @@ import org.spongepowered.api.text.format.TextColors;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.function.Function;
@@ -15,6 +20,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ConfigurationManager {
+    public static final int CONFIG_VERSION = 2;
+
+    private static final List<ConfigurationUpdater> UPDATERS = new ArrayList<>();
+    static {
+        UPDATERS.add(new Version2Updater());
+    }
+
     private static ConfigurationManager instance = new ConfigurationManager();
 
     public static ConfigurationManager getInstance(){
@@ -37,6 +49,7 @@ public class ConfigurationManager {
             }
         } else {
             loadConfig();
+            updateConfig();
         }
     }
 
@@ -64,6 +77,9 @@ public class ConfigurationManager {
     }
 
     private void initDefaultConfig() {
+        getConfig().getNode("autobroadcaster", "version").setValue(2)
+                .setComment("Do not touch this value");
+
         CommentedConfigurationNode broadcaster = config.getNode("autobroadcaster", "broadcasters")
                 .setComment("Here you can define all the broadcaster that you need.");
 
@@ -76,6 +92,9 @@ public class ConfigurationManager {
 
         defaultBroadcaster.getNode("announcerName").setValue(TextUtils.serializeText(announcerName))
                 .setComment("This is the name that will be display in the chat.");
+
+        defaultBroadcaster.getNode("enabled").setValue(true)
+                .setComment("Set it to false to temporarily disable the broadcaster.");
 
         defaultBroadcaster.getNode("interval").setValue("60s")
                 .setComment("Interval between two announcement. Example: 10h30m5s -> 10 hours, 30 minutes and 5 seconds");
@@ -92,6 +111,24 @@ public class ConfigurationManager {
                 .setComment("Messages to broadcast.");
 
         saveConfig();
+
+    }
+
+    private void updateConfig(){
+        boolean changed = false;
+
+        for (ConfigurationUpdater updater : UPDATERS) {
+            if (!updater.isAlreadyUpdated(config)) {
+                AutoBroadcaster.getLogger().info("Updating configuration file to version " + updater.getVersion() + ".");
+                updater.update(config);
+                changed = true;
+            } else {
+                break;
+            }
+        }
+
+        if (changed)
+            saveConfig();
 
     }
 

@@ -1,7 +1,10 @@
 package io.github.aadeg.autobroadcaster;
 
+import com.google.common.base.Joiner;
 import io.github.aadeg.autobroadcaster.channels.AllPlayerMessageChannel;
 import io.github.aadeg.autobroadcaster.channels.WorldMessageChannel;
+import io.github.aadeg.autobroadcaster.config.ConfigurationManager;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
@@ -15,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class Broadcaster {
     private String name;
     private Text announcerName;
+    private boolean enabled;
     private int interval;
     private boolean broadcastToConsole;
     private Set<World> worlds = new HashSet<World>();
@@ -24,10 +28,11 @@ public class Broadcaster {
     private MutableMessageChannel channel;
     private Iterator<Text> msgIterator;
 
-    public Broadcaster(String name, Text announcerName, int interval, boolean broadcastToConsole, List<String> worlds, List<Text> messages){
+    public Broadcaster(String name, Text announcerName, boolean enabled, int interval, boolean broadcastToConsole, List<String> worlds, List<Text> messages){
         AutoBroadcaster.getLogger().debug("Initialization of broadcaster " + name + "...");
         this.name = name;
         this.announcerName = announcerName;
+        this.enabled = enabled;
         this.interval = interval;
         this.broadcastToConsole = broadcastToConsole;
         this.messages = messages;
@@ -62,6 +67,9 @@ public class Broadcaster {
     }
 
     public void start(){
+        if (!enabled)
+            return;
+
         AutoBroadcaster.getLogger().debug("Starting broadcaster " + name + "...");
         Sponge.getEventManager().registerListeners(AutoBroadcaster.getInstance(), this.channel);
 
@@ -78,6 +86,46 @@ public class Broadcaster {
         Sponge.getEventManager().unregisterListeners(this.channel);
 
         AutoBroadcaster.getLogger().debug("Broadcaster " + name + " stopped.");
+    }
+
+    public boolean isEnabled(){
+        return enabled;
+    }
+
+    public boolean enable(){
+        if (enabled)
+            return false;
+
+        ConfigurationManager.getInstance().getConfig()
+                .getNode("autobroadcaster", "broadcasters", name, "enabled").setValue(true);
+        ConfigurationManager.getInstance().saveConfig();
+        this.enabled = true;
+        return true;
+    }
+
+    public boolean disable(){
+        if (!enabled)
+            return false;
+
+        ConfigurationManager.getInstance().getConfig()
+                .getNode("autobroadcaster", "broadcasters", name, "enabled").setValue(false);
+        ConfigurationManager.getInstance().saveConfig();
+        this.enabled = false;
+        return true;
+    }
+
+    @Override
+    public String toString(){
+        String worlds = "";
+        if (this.worlds.isEmpty()) {
+            worlds = "ALL";
+        } else {
+            for (World w : this.worlds)
+                worlds += w.getName() + ", ";
+        }
+        worlds = worlds.substring(0, worlds.length() - 2);
+
+        return this.name + " (Worlds: " + worlds + ")";
     }
 
     class AnnouncerRunnable implements Runnable {
