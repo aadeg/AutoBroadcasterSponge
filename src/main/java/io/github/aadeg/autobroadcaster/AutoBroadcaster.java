@@ -62,45 +62,27 @@ public class AutoBroadcaster {
     private void registerCommands() {
         CommandSpec reload = CommandSpec.builder()
                 .description(Text.of("Reload the configuration files"))
-                .permission("autobroadcaster.admin.reload")
+                .permission("autobroadcaster.reload")
                 .executor(new ReloadCommand())
                 .build();
 
         CommandSpec listBroadcasters = CommandSpec.builder()
                 .description(Text.of("List all the broadcasters"))
-                .permission("autobroadcaster.admin.list")
+                .permission("autobroadcaster.list")
                 .executor(new ListBroadcastersCommand())
-                .build();
-
-        CommandSpec enableBroadcaster = CommandSpec.builder()
-                .description(Text.of("Enable a broadcaster"))
-                .permission("autobroadcaster.admin.enable")
-                .executor(new ToggleBroadcasterCommand(true))
-                .arguments(
-                        GenericArguments.onlyOne(new BroadcasterCommandElement(Text.of("broadcaster")))
-                )
-                .build();
-
-        CommandSpec disableBroadcaster = CommandSpec.builder()
-                .description(Text.of("Disable a broadcaster"))
-                .permission("autobroadcaster.admin.disable")
-                .executor(new ToggleBroadcasterCommand(false))
-                .arguments(
-                        GenericArguments.onlyOne(new BroadcasterCommandElement(Text.of("broadcaster")))
-                )
                 .build();
 
         Map<String, String> subCommands = new HashMap<>();
         subCommands.put("list", "list");
         subCommands.put("add", "add");
         subCommands.put("remove", "remove");
+        subCommands.put("enable", "enable");
+        subCommands.put("disable", "disable");
 
         CommandSpec cmd = CommandSpec.builder()
                 .description(Text.of("Manage AutoBroadcaster plugin"))
                 .child(reload, "reload", "r")
                 .child(listBroadcasters, "list", "ls")
-                .child(enableBroadcaster, "enable")
-                .child(disableBroadcaster, "disable")
                 .executor(new BroadcasterCommand())
                 .arguments(
                         GenericArguments.onlyOne(new BroadcasterCommandElement(Text.of("broadcaster"))),
