@@ -82,10 +82,21 @@ public class AutoBroadcaster {
 
         for(Object key : map.keySet()){
             CommentedConfigurationNode node = map.get(key);
+
+            int interval;
+            try {
+                interval = ConfigurationManager.parseInterval(node.getNode("interval").getString());
+            } catch (IllegalArgumentException ex){
+                logger.warn("Invalid interval in " + key + " broadcaster! Broadcaster ignored.");
+                continue;
+            }
+
+            logger.info(Integer.toString(interval));
+
             Broadcaster broadcaster = new Broadcaster(
                     (String) key,
                     ConfigurationManager.deserializeText(node.getNode("announcerName").getString()),
-                    node.getNode("interval").getInt(),
+                    interval,
                     node.getNode("broadcastToConsole").getBoolean(),
                     node.getNode("worlds").getList(ConfigurationManager.STRING_LIST_TRANSFORMER),
                     node.getNode("messages").getList(ConfigurationManager.TEXT_LIST_TRANSFORMER)
