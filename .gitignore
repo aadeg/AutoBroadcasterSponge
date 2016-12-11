@@ -19,6 +19,12 @@
 # Maven #
 target/
 
+# Grandle #
+.gradle/
+build/
+gradle/
+gradlew
+
 
 .directory
 

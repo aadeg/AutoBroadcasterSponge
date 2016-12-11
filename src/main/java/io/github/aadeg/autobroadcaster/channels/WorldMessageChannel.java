@@ -3,7 +3,7 @@ package io.github.aadeg.autobroadcaster.channels;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.entity.DisplaceEntityEvent;
+import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -52,7 +52,7 @@ public class WorldMessageChannel extends BroadcasterMessageChannel {
     }
 
     @Listener
-    public void onWorldChange(DisplaceEntityEvent.Teleport event){
+    public void onWorldChange(MoveEntityEvent.Teleport event){
         if (!(event.getTargetEntity() instanceof Player))
             return;
 

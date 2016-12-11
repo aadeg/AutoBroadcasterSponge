@@ -1,0 +1,28 @@
+plugins {
+    id 'org.spongepowered.plugin' version '0.6'
+}
+
+group 'io.github.aadeg.autobroadcaster'
+version '0.2.1'
+
+apply plugin: 'java'
+
+
+targetCompatibility = "1.8"
+sourceCompatibility = "1.8"
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sponge'
+        url = 'http://repo.spongepowered.org/maven'
+    }
+}
+
+group = 'io.github.aadeg.autobroadcaster'
+version = '0.2.1'
+description = 'AutoBoardcaster'
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:5.0.0'
+}
