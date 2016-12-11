@@ -9,3 +9,7 @@ Initial release
 + Links in messages are now clickable.
 + Added ```enabled``` field in configuration file for each broadcaster.
 + Added system for auto upgrading configuration file.
+
+## 0.2.1
++ Upgrade to SpongeAPI 5.0.0
++ Using Grandle instead of Maven for project building
